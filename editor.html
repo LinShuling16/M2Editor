@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>MEditor.md</title>
+	<meta charset="utf-8">
+	<!-- css样式引入  -->
+	<link rel="stylesheet" href="css/editormd.preview.min.css" />
+	<!-- 该css样式是更改了dark主题后的css样式，更改内容：使用dark主题后，不是全部的显示区域都变为暗黑色，而是只有代码区域是。 -->
+	<!-- 使用压缩后的css文件，正式部署时能减轻一点服务器压力，提高加载效率。 -->
+	<link rel="stylesheet" href="css/editormd-codeDark.min.css" />
+
+	<!-- bower:css  mind-->
+		<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+		<link rel="stylesheet" href="bower_components/codemirror/lib/codemirror.css" />
+		<link rel="stylesheet" href="bower_components/hotbox/hotbox.css" />
+		<link rel="stylesheet" href="bower_components/kityminder-core/dist/kityminder.core.css" />
+		<link rel="stylesheet" href="bower_components/color-picker/dist/color-picker.min.css" />
+		<!-- endbower -->
+		<link rel="stylesheet" href="kityminder.editor.min.css">
+	<!-- mind ending -->
+
+	<style type="text/css">
+		button a{
+			text-decoration: none;
+		}
+		
+		#test-editormd{
+			position: absolute;
+			left:45%;
+			/*left: 0;*/
+			overflow:hidden;
+
+		}
+
+		/*mind*/
+		html, body {
+			margin: 0;
+			padding: 0;
+			height: 100%;
+			overflow:hidden;/*hidden*/
+		}
+		h1.editor-title {
+			background: #393F4F;
+			color: white;
+			margin: 0;
+			height: 40px;
+			width: 100%;
+			font-size: 14px;
+			line-height: 40px;
+			font-family: 'Hiragino Sans GB', 'Arial', 'Microsoft Yahei';
+			font-weight: normal;
+			padding: 0 20px;
+
+		}
+		div.minder-editor-container {
+			position: absolute; 
+			top: 67px;
+			bottom: 0;
+			right:55%;
+		}
+		/*mind ending*/
+
+	</style>
+</head>
+<body ng-app="kityminderDemo" ng-controller="MainController"><!-- mind -->
+	<button ng-click="getData()">获取数据</button>
+	<button ng-click="importData()">导入数据</button>
+	<button type="button" class="changeTabClose">收起脑图</button>
+	<button type="button" class="changeTabOpen">展开脑图</button>
+	<button id="hide-btn">Hide edtior</button>
+	<button id="show-btn">Show edtior</button>
+	<button id="get-md-btn">Get Markdown</button>
+	<button id="set-md-btn">set Markdown</button>
+	<h1 class="editor-title">编辑器</h1>
+	<kityminder-editor on-init="initEditor(editor, minder)"></kityminder-editor><!-- style="width:1000px;height: 500px;" --><!-- mind -->
+
+	<div class="editormd" id="test-editormd">
+		<textarea class="editormd-markdown-textarea" name="test-editormd-markdown-doc" ></textarea>
+		<!-- 第二个隐藏文本域，用来构造生成的HTML代码，方便表单POST提交，这里的name可以任意取，后台接受时以这个name键为准 -->
+		<textarea class="editormd-html-textarea" name="text"></textarea>
+	</div>
+	<!-- <div class="content editormd-preview-theme-dark" id="content">${article.text }</div> -->
+
+	<!-- js文件引入 -->
+	<script src="lib/marked.min.js"></script>
+	<script src="lib/prettify.min.js"></script>
+	<script type="text/javascript" src="jquery-3.2.0.min.js"></script>
+	<script src="editormd.js"></script>
+
+	<!-- mind -->
+	<!-- bower:js -->
+		<script src="bower_components/jquery/dist/jquery.js"></script>
+		<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+		<script src="bower_components/angular/angular.js"></script>
+		<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+		<script src="bower_components/codemirror/lib/codemirror.js"></script>
+		<script src="bower_components/codemirror/mode/xml/xml.js"></script>
+		<script src="bower_components/codemirror/mode/javascript/javascript.js"></script>
+		<script src="bower_components/codemirror/mode/css/css.js"></script>
+		<script src="bower_components/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+		<script src="bower_components/codemirror/mode/markdown/markdown.js"></script>
+		<script src="bower_components/codemirror/addon/mode/overlay.js"></script>
+		<script src="bower_components/codemirror/mode/gfm/gfm.js"></script>
+		<script src="bower_components/angular-ui-codemirror/ui-codemirror.js"></script>
+		<script src="bower_components/marked/lib/marked.js"></script>
+		<script src="bower_components/kity/dist/kity.min.js"></script>
+		<script src="bower_components/hotbox/hotbox.js"></script>
+		<script src="bower_components/json-diff/json-diff.js"></script>
+		<script src="bower_components/kityminder-core/dist/kityminder.core.min.js"></script>
+		<script src="bower_components/color-picker/dist/color-picker.min.js"></script>
+		<!-- end bower -->
+
+		<script src="kityminder.editor.min.js"></script>
+
+	<!-- mind ending -->
+	<script type="text/javascript">
+		var testEditor;
+	    $(function() {
+		    testEditor=editormd("test-editormd", {
+		        width   :  "100%",
+		        height  : 900,
+		        syncScrolling : "single",
+		        //你的lib目录的路径，我这边用JSP做测试的
+		        path    : "lib/",/* 原来作者的路径：path    : "<%=request.getContextPath()%>/resources/editormd/lib/",*/
+		        //这个配置在simple.html中并没有，但是为了能够提交表单，使用这个配置可以让构造出来的HTML代码直接在第二个隐藏的textarea域中，方便post提交表单。
+		        saveHTMLToTextarea : true,/*注意添加属性时,逗号隔开，最后一个不用*/
+		        previewTheme : "dark" //使用drak主题，如果不使用则将这一行去掉。
+		    });
+
+		    editormd.markdownToHTML("content");
+
+		    /*脑图展开切换*/
+		   　$(".changeTabClose").bind('click',function(){
+                
+			　　　　var divcss={
+						left:"0"
+					};
+					$("#test-editormd").css(divcss);
+					$(".minder-editor-container").css('display','none');
+
+			　});
+		   　$(".changeTabOpen").bind('click',function(){
+                
+			　　　　var divcss={
+						left:"45%"
+					};
+					$("#test-editormd").css(divcss);
+					$(".minder-editor-container").css('display','block');
+
+			　});
+		   /*Get Set Markdown*/
+			   $("#get-md-btn").bind('click',function(){
+			   		console.log(testEditor.getMarkdown());
+			   });
+			   $("#set-md-btn").bind('click',function(){
+			   		console.log(testEditor.setMarkdown("# 这是一级标题"));
+			   });
+			/*Show Hide Markdown*/
+			   $("#hide-btn").bind('click',function(){
+			   		testEditor.hide();
+			   		$(".minder-editor-container ").css('right','0');
+			   });
+
+			   $("#show-btn").bind('click',function(){
+			   		testEditor.show();
+			   		$(".minder-editor-container ").css('right','55%');
+			   });
+		    
+		});
+
+	    /*mind*/
+	angular.module('kityminderDemo', ['kityminderEditor'])
+			.config(function (configProvider) {
+				configProvider.set('imageUpload', '../server/imageUpload.php');
+			})
+			.controller('MainController', function($scope) {
+				$scope.initEditor = function(editor, minder) {
+					window.editor = editor;
+					window.minder = minder;
+				};
+				$scope.getData = function(){
+					console.log(JSON.stringify(editor.minder.exportJson()));
+				};
+				$scope.importData = function(){
+					editor.minder.importJson(    {
+						"root": {
+							"data": {
+								"text": "百度产品"
+
+							},
+							"children": [
+								{ "data": { "text": "新闻" } },
+								{ "data": { "text": "网页", "priority": 1 } },
+								{ "data": { "text": "贴吧", "priority": 2 } },
+								{ "data": { "text": "知道", "priority": 2 } },
+								{ "data": { "text": "音乐", "priority": 3 } },
+								{ "data": { "text": "图片", "priority": 3 } },
+								{ "data": { "text": "视频", "priority": 3 } },
+								{ "data": { "text": "地图", "priority": 3 } },
+								{ "data": { "text": "百科", "priority": 3 } },
+								{ "data": { "text": "更多", "hyperlink": "http://www.baidu.com/more" } }
+							]
+						}
+					});
+				}
+			});
+	</script>
+
+
+</body>
+</html>
+
+
