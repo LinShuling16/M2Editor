@@ -9,19 +9,19 @@ Kityminder-editor and editor.md
 - 最好用的markdown编辑器汇总：http://www.imooc.com/article/14554
 - Markdown编辑器之比较：http://www.jianshu.com/p/dcffb6f60fe2
 - 非常有用的 Markdown 编辑器和工具：http://www.oschina.net/news/50322/markdown-editors-and-tools
-------------------------
+-------------
 
 - editor.md：https://pandao.github.io/editor.md/
 - http://www.cnblogs.com/Leo_wl/p/5763491.html
----------------------------
+------------
 
 - stackedit：https://github.com/benweet/stackedit/
 - http://blog.csdn.net/yfj300/article/details/48542051
-----------------------------
+-----------
 
 - dillinger：https://github.com/joemccann/dillinger/releases
 - http://www.open-open.com/lib/view/open1414552390356.html
--------------------------
+------------
 
 - EpicEditor：https://github.com/OscarGodson/EpicEditor
 
